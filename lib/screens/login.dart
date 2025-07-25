@@ -1,5 +1,7 @@
 // lib/screens/login_screen.dart
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +9,8 @@ import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
 import './dashboard.dart';
 import './register.dart';
+import './postjob.dart';
+import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -26,16 +30,18 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final token = await ApiService.login(
+      final loginResponse = await ApiService.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
 
-      if (token != null) {
-        Provider.of<AuthProvider>(context, listen: false).login(token);
+      if (loginResponse != null) {
+        final token = loginResponse['token'];
+        final email = loginResponse['email'];
+        Provider.of<AuthProvider>(context, listen: false).login(token, email);
 
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => DashboardScreen()),
+          MaterialPageRoute(builder: (_) => HomePage()),
         );
       } else {
         _showError('Invalid response from server.');

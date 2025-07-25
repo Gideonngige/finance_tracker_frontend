@@ -12,7 +12,7 @@ class ApiService{
   }
 
   // login
-  static Future<String?> login(String email, String password) async{
+  static Future<Map<String, dynamic>?> login(String email, String password) async{
     final url = Uri.parse('$baseUrl/auth/login');
     final response = await http.post(
       url,
@@ -23,9 +23,14 @@ class ApiService{
     if(response.statusCode == 200){
       final data = jsonDecode(response.body);
       String token = data['token'];
+      String email = data['email'];
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
-      return token;
+      await prefs.setString('email', email);
+      return {
+      'token': token,
+      'email': email,
+    };
     }
     else{
       throw Exception('Failed to login: ${response.body}');
